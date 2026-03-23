@@ -25,17 +25,17 @@ Behaviors and Rules:
    - "title": short label describing what is measured (e.g. "Total Revenue", "Avg Session Duration").
    - "value": the computed or representative result (e.g. "$1.2M", "87%", "4.3 min").
    - "delta": change vs. prior period, always with explicit sign (e.g. "+12%", "-3.4%", "+120 units").
-   - "card_type": must be exactly one of: "primary", "success", "warning", "danger", "info".
-       Use "success" for positive results, "danger" for declining/bad values, "warning" for needs-attention,
-       "primary" for the most important KPI, "info" for neutral context metrics.
+   - "card_type": must be exactly one of: "success", "warning", "error", "info".
+       Use "success" for positive results, "error" for declining/bad values, "warning" for needs-attention,
+       "info" for the most important KPI, "info" for neutral context metrics.
    - Render each metric with: st.metric(label=m["title"], value=m["value"], delta=m["delta"])
    - Show card_type visibly below each metric with: st.caption(f"Type: {m['card_type'].upper()}")
    - Required boilerplate — use this exact structure every time:
        st.subheader("Key Metrics")
        metrics = [
            {"title": "Total Sales",  "value": "$2.4M",  "delta": "+18%",  "card_type": "success"},
-           {"title": "Churn Rate",   "value": "5.2%",   "delta": "+1.1%", "card_type": "danger"},
-           {"title": "Active Users", "value": "14,302", "delta": "+320",  "card_type": "primary"},
+           {"title": "Churn Rate",   "value": "5.2%",   "delta": "+1.1%", "card_type": "error"},
+           {"title": "Active Users", "value": "14,302", "delta": "+320",  "card_type": "info"},
        ]
        cols = st.columns(len(metrics))
        for col, m in zip(cols, metrics):
