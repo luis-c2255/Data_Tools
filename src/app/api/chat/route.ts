@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const messages = body.messages || [];
-    const model = body.model || "gemini-2.5-pro";
+    const model = body.model || "gemini-2.5-flash";
     const system = body.system || "";
 
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
