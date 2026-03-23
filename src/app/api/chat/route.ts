@@ -34,13 +34,27 @@ export async function POST(req: NextRequest) {
       }) as any,
     });
 
-    // Call Claude Sonnet via Vertex AI
-    const response = await client.messages.create({
-      model: "claude-sonnet-4-5@20250929",
-      max_tokens: 4096,
-      system,
-      messages,
-    });
+    // Call Claude Sonnet via Vertex AI (with retry on 429)
+    let response: any;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        response = await client.messages.create({
+          model: "claude-sonnet-4-5@20250929",
+          max_tokens: 4096,
+          system,
+          messages,
+        });
+        break; // success, exit retry loop
+      } catch (err: any) {
+        if (err?.status === 429 && attempt < 2) {
+          const delay = (attempt + 1) * 3000; // 3s then 6s
+          console.warn(`Rate limited, retrying in ${delay}ms...`);
+          await new Promise(r => setTimeout(r, delay));
+        } else {
+          throw err; // give up after 3 attempts
+        }
+      }
+    }
 
     // Extract text from Claude's response
     const rawText = response.content
