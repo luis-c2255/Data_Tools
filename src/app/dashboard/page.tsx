@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 
-
-
 export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-navy text-white p-10 flex items-center justify-center">

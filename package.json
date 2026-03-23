@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@anthropic-ai/vertex-sdk": "^0.14.4",
-    "google-auth-library": "^10.6.2",
     "lucide-react": "latest",
     "motion": "^12.0.0",
     "next": "latest",
