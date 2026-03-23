@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     );
 
     const data = await response.json();
-
+    console.log("API response:", JSON.stringify(data, null, 2));
     if (!response.ok) {
       console.error("Gemini API error:", data);
       return NextResponse.json(
