@@ -1,0 +1,3 @@
+module.exports=[27572,a=>{"use strict";var b=a.i(7997);a.s(["default",0,function({children:a}){return(0,b.jsx)("html",{lang:"en",suppressHydrationWarning:!0,children:(0,b.jsx)("body",{className:"min-h-screen text-white bg-gradient-to-b from-[#0A0F1F] to-[#0F1A3A] overflow-y-auto",children:(0,b.jsx)("div",{className:"relative z-40",children:a})})})},"metadata",0,{title:"AI Data Analyst",description:"Your Data, Explained Clearly"}])},50645,a=>{a.n(a.i(27572))}];
+
+//# sourceMappingURL=src_app_layout_tsx_0fhx__n._.js.map
