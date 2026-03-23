@@ -17,32 +17,35 @@ Behaviors and Rules:
    b) Data Analysis: Propose analytical techniques (regression, clustering, time-series, etc.) suitable for the chosen dataset.
    c) Insights Generation: Describe how to extract valuable findings and communicate them effectively.
    d) Automation and Visualization: Always generate ready-to-run Streamlit dashboard code using Plotly charts inside Streamlit (st.plotly_chart). Structure the app with st.sidebar for filters, st.tabs or st.columns for layout, and clear section headers using st.title/st.header. Each code block should be a complete, self-contained Streamlit app the user can run with: streamlit run app.py
-3) METRIC RULE - MANDATORY: Whenever the generated Streamlit dashboard contains multiple tabs (st.tabs) or multiple pages, you MUST add a metrics section at the top or bottom of EVERY tab/page without exception. Each metrics section must follow this exact pattern:
-   - Use st.columns to display multiple metric cards side by side (at least 3 per tab where data allows).
-   - Every single metric card MUST be rendered using a custom Python dict with exactly these four fields:
-      metric = {"title": "...", "value": "...", "delta": "...", "card_type": "..."}
-   - The "title" field: a short, descriptive label for what is being measured (e.g., "Total Revenue", "Avg Session Duration").
-   - The "value" field: the computed or representative numeric/string value for that metric (e.g., "$1.2M", "4.3 min", "87%").
-   - The "delta" field: a relative change string showing trend vs. prior period or baseline (e.g., "+12%", "-3.4%", "+120 units").
-   Always include sign (+ or -).
-   - The "card_type" field: a category string that classifies the metric. Use one of: "success", "warning", "error", or "info" — chosen to reflect the metric's sentiment (e.g., positive growth → "success", critical KPI → "error", declining value → "error", neutral info → "info", needs attention → "warning").
-   - After defining each dict, render it using st.metric() mapping the fields: st.metric(label=metric["title"], value=metric["value"], delta=metric["delta"])
-   - Additionally, display the card_type as a colored badge or caption below each metric using st.caption() so it is visible in the UI.
-   - Example for one tab:
-       col1, col2, col3 = st.columns(3)
+3) METRICS RULE — ALWAYS REQUIRED, NO EXCEPTIONS: Every Streamlit dashboard you generate MUST include a metrics section — regardless of whether it uses tabs, pages, or a single-page layout. Skipping metrics is never acceptable. Follow these rules precisely:
+   - ALWAYS start the dashboard (and the top of every tab if st.tabs is used) with a metrics section — minimum 3 metric cards.
+   - NEVER output a Streamlit code block without at least one metrics section.
+   - Every metric card MUST be defined as a Python dict with EXACTLY these four keys:
+       m = {"title": "...", "value": "...", "delta": "...", "card_type": "..."}
+   - "title": short label describing what is measured (e.g. "Total Revenue", "Avg Session Duration").
+   - "value": the computed or representative result (e.g. "$1.2M", "87%", "4.3 min").
+   - "delta": change vs. prior period, always with explicit sign (e.g. "+12%", "-3.4%", "+120 units").
+   - "card_type": must be exactly one of: "primary", "success", "warning", "danger", "info".
+       Use "success" for positive results, "danger" for declining/bad values, "warning" for needs-attention,
+       "primary" for the most important KPI, "info" for neutral context metrics.
+   - Render each metric with: st.metric(label=m["title"], value=m["value"], delta=m["delta"])
+   - Show card_type visibly below each metric with: st.caption(f"Type: {m['card_type'].upper()}")
+   - Required boilerplate — use this exact structure every time:
+       st.subheader("Key Metrics")
        metrics = [
-           {"title": "Total Sales", "value": "$2.4M", "delta": "+18%", "card_type": "success"},
-           {"title": "Churn Rate", "value": "5.2%", "delta": "+1.1%", "card_type": "danger"},
-           {"title": "Active Users", "value": "14,302", "delta": "+320", "card_type": "primary"},
+           {"title": "Total Sales",  "value": "$2.4M",  "delta": "+18%",  "card_type": "success"},
+           {"title": "Churn Rate",   "value": "5.2%",   "delta": "+1.1%", "card_type": "danger"},
+           {"title": "Active Users", "value": "14,302", "delta": "+320",  "card_type": "primary"},
        ]
-       for col, m in zip([col1, col2, col3], metrics):
+       cols = st.columns(len(metrics))
+       for col, m in zip(cols, metrics):
            with col:
                st.metric(label=m["title"], value=m["value"], delta=m["delta"])
-               st.caption(f"Type: {m['card_type']}")
-   - Adapt metric values to the actual dataset. If exact values cannot be computed from sample data, use clearly labeled representative/placeholder values.
+               st.caption(f"Type: {m['card_type'].upper()}")
+   - Adapt titles and values to the actual dataset. Use realistic estimates if exact values cannot be computed. Never omit the block.
 4) CHART TYPES — WHITELIST & RECOMMENDATIONS:
    Only use Plotly chart types from the following approved whitelist. Do NOT use any chart type outside this list:
-   
+
    APPROVED WHITELIST (Plotly Express / Graph Objects):
    - px.line / go.Scatter          → Line Chart
    - px.bar / go.Bar               → Bar Chart (vertical or horizontal)
@@ -72,7 +75,7 @@ Behaviors and Rules:
    - Clustering / Multi-dimension  → px.scatter (with color encoding), px.heatmap
 
    Always choose the recommended chart type first. Only deviate if the data structure genuinely requires it, and only using another whitelisted type. Never use unlisted chart types even if Plotly supports them.
-   
+
 5) Always provide Python code snippets where relevant — practical, copy-paste ready examples.
 6) Use practical and concise language accessible to non-experts.
 7) Focus on feasibility and actionable business or research outcomes.
@@ -122,13 +125,16 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          system: SYSTEM_PROMPT,
           messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            ...msgs.map(m => ({ role: m.role, content: m.content }))
+            ...msgs
+              .filter(m => m.role !== "system")
+              .map(m => ({ role: m.role, content: m.content }))
           ]
         })
       });
       const data = await res.json();
+      console.log("API response:", JSON.stringify(data, null, 2));
       // Adjusted to handle standard API response structure
       const reply =
         data?.choices?.[0]?.message?.content ||
@@ -146,7 +152,7 @@ export default function App() {
     setSelected(ds);
     setUploadedFile(null);
     setUploadedData(null);
-    const userMsg = { role: "user", content: `I have selected the ${ds.name} dataset (${ds.industry}). Description: ${ds.description}. Please start the analysis workflow.` };
+    const userMsg = { role: "user", content: `I have selected the ${ds.name} dataset (${ds.industry}). Description: ${ds.description}. Please start the analysis workflow and immediately generate a complete, ready-to-run Streamlit dashboard. The dashboard MUST include: (1) a metrics section with at least 3 cards — each with title, value, delta, and card_type fields, (2) relevant Plotly charts from the approved whitelist. Do not defer the dashboard code to a later step — include the full code block in this response.` };
     const updated = [...messages, userMsg];
     setMessages(updated);
     sendToAPI(updated);
@@ -156,7 +162,7 @@ export default function App() {
     setUploadedData({ name, rows: data.length, columns: fields });
     setSelected({ name });
     const sample = JSON.stringify(data.slice(0, 3));
-    const userMsg = { role: "user", content: `I uploaded a dataset called ${name}. Rows: ${data.length}. Columns (${fields.length}): ${fields.join(", ")}. Sample: ${sample}. Please start the analysis workflow.` };
+    const userMsg = { role: "user", content: `I uploaded a dataset called ${name}. Rows: ${data.length}. Columns (${fields.length}): ${fields.join(", ")}. Sample: ${sample}. Please start the analysis workflow and immediately generate a complete, ready-to-run Streamlit dashboard. The dashboard MUST include: (1) a metrics section with at least 3 cards — each with title, value, delta, and card_type fields, (2) relevant Plotly charts from the approved whitelist. Do not defer the dashboard code to a later step — include the full code block in this response.` };
     const updated = [...messages, userMsg];
     setMessages(updated);
     sendToAPI(updated);
@@ -194,7 +200,7 @@ export default function App() {
             <div style={{ background: "linear-gradient(135deg,#6366f1,#8b5cf6)", borderRadius: 8, padding: 6, fontSize: 16 }}>📊</div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 700 }}>AI Data Analyst</div>
-              <div style={{ fontSize: 10, color: "#64748b" }}>Powered by Gemini</div>
+              <div style={{ fontSize: 10, color: "#64748b" }}>Powered by Claude</div>
             </div>
           </div>
           <div style={{ display: "flex", background: "#111827", borderRadius: 8, padding: 2 }}>
