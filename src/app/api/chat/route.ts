@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import AnthropicVertex from "@anthropic-ai/vertex-sdk";
+import { AnthropicVertex } from "@anthropic-ai/vertex-sdk";
+import { GoogleAuth } from "google-auth-library";
 
 // -------------------------------------------------------
 // Main POST handler
@@ -20,16 +21,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Initialize Anthropic Vertex client
+    // Initialize Anthropic Vertex client with service account credentials
     const client = new AnthropicVertex({
       projectId,
       region,
-      googleAuthOptions: {
+      googleAuth: new GoogleAuth({
+        scopes: "https://www.googleapis.com/auth/cloud-platform",
         credentials: {
           client_email: process.env.GOOGLE_CLIENT_EMAIL,
           private_key: process.env.GOOGLE_PRIVATE_KEY!.replace(/\\n/g, "\n"),
         },
-      },
+      }) as any,
     });
 
     // Call Claude Sonnet via Vertex AI
