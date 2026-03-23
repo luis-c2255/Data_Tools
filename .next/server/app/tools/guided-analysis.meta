@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/tools/layout,_N_T_/tools/guided-analysis/layout,_N_T_/tools/guided-analysis/page,_N_T_/tools/guided-analysis"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/tools/guided-analysis/__PAGE__",
+    "/tools/guided-analysis",
+    "/tools",
+    "/_index",
+    "/_head"
+  ]
+}
