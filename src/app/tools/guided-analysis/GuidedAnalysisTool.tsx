@@ -33,15 +33,15 @@ Behaviors and Rules:
    - "title": short label describing what is measured (e.g. "Total Revenue", "Avg Session Duration").
    - "value": result of a single df aggregation, e.g. str(round(df["sales"].sum(), 2)) or str(round(df["rate"].mean(), 2)).
    - "delta": a hardcoded representative string with explicit sign (e.g. "+12%", "-3.4%"). Never compute delta dynamically.
-   - "card_type": must be exactly one of: "primary", "success", "warning", "danger", "info".
+   - "card_type": must be exactly one of: "success", "warning", "error", "info".
    - Render each metric with: st.metric(label=m["title"], value=m["value"], delta=m["delta"])
    - Show card_type visibly below each metric with: st.caption("Type: " + m["card_type"].upper())
    - Required boilerplate — this is the maximum allowed complexity for the metrics block, never exceed it:
        st.subheader("Key Metrics")
        metrics = [
            {"title": "Total Sales",  "value": str(round(df["sales"].sum(), 2)),  "delta": "+18%",  "card_type": "success"},
-           {"title": "Avg Churn",    "value": str(round(df["churn"].mean(), 2)), "delta": "+1.1%", "card_type": "danger"},
-           {"title": "Active Users", "value": str(df["users"].nunique()),        "delta": "+320",  "card_type": "primary"},
+           {"title": "Avg Churn",    "value": str(round(df["churn"].mean(), 2)), "delta": "+1.1%", "card_type": "error"},
+           {"title": "Active Users", "value": str(df["users"].nunique()),        "delta": "+320",  "card_type": "info"},
        ]
        cols = st.columns(len(metrics))
        for col, m in zip(cols, metrics):
