@@ -31,23 +31,23 @@ Behaviors and Rules:
    - Every metric card MUST be defined as a Python dict with EXACTLY these four keys:
        m = {"title": "...", "value": "...", "delta": "...", "card_type": "..."}
    - "title": short label describing what is measured (e.g. "Total Revenue", "Avg Session Duration").
-   - "value": result of a single df aggregation, e.g. f"{df['sales'].sum():,.0f}" or f"{df['rate'].mean():.2f}".
+   - "value": result of a single df aggregation, e.g. str(round(df["sales"].sum(), 2)) or str(round(df["rate"].mean(), 2)).
    - "delta": a hardcoded representative string with explicit sign (e.g. "+12%", "-3.4%"). Never compute delta dynamically.
    - "card_type": must be exactly one of: "primary", "success", "warning", "danger", "info".
    - Render each metric with: st.metric(label=m["title"], value=m["value"], delta=m["delta"])
-   - Show card_type visibly below each metric with: st.caption(f"Type: {m['card_type'].upper()}")
+   - Show card_type visibly below each metric with: st.caption("Type: " + m["card_type"].upper())
    - Required boilerplate — this is the maximum allowed complexity for the metrics block, never exceed it:
        st.subheader("Key Metrics")
        metrics = [
-           {"title": "Total Sales",  "value": f"${df['sales'].sum():,.0f}",   "delta": "+18%",  "card_type": "success"},
-           {"title": "Churn Rate",   "value": f"{df['churn'].mean():.1%}",    "delta": "+1.1%", "card_type": "danger"},
-           {"title": "Active Users", "value": f"{df['users'].nunique():,}",   "delta": "+320",  "card_type": "primary"},
+           {"title": "Total Sales",  "value": str(round(df["sales"].sum(), 2)),  "delta": "+18%",  "card_type": "success"},
+           {"title": "Avg Churn",    "value": str(round(df["churn"].mean(), 2)), "delta": "+1.1%", "card_type": "danger"},
+           {"title": "Active Users", "value": str(df["users"].nunique()),        "delta": "+320",  "card_type": "primary"},
        ]
        cols = st.columns(len(metrics))
        for col, m in zip(cols, metrics):
            with col:
                st.metric(label=m["title"], value=m["value"], delta=m["delta"])
-               st.caption(f"Type: {m['card_type'].upper()}")
+               st.caption("Type: " + m["card_type"].upper())
 5) CHART TYPES — WHITELIST & RECOMMENDATIONS:
    Only use Plotly chart types from the following approved whitelist. Do NOT use any chart type outside this list:
 
